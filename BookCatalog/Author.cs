@@ -6,12 +6,24 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace BookCatalog
 {
+    /// <summary>
+    /// Класс "Автор".
+    /// </summary>
     public class Author: IComparable<Author>
     {
+        /// <summary>
+        /// Свойство содержит имя автора.
+        /// </summary>
         public string FirstName{ get; private set; }
 
+        /// <summary>
+        /// Свойство содержит фамилию автора.
+        /// </summary>
         public string LastName { get; private set; }
 
+        /// <summary>
+        /// Свойство содержит отчество автора.
+        /// </summary>
         public string MiddleName { get; private set; }        
 
         public override string ToString()
@@ -20,7 +32,7 @@ namespace BookCatalog
                 return $"{FirstName} {LastName}";
             return $"{FirstName} {MiddleName} {LastName}";
         }
-
+                
         public int CompareTo([AllowNull] Author other)
         {
             string firstAuthorFullName = this.ToString();
@@ -28,6 +40,12 @@ namespace BookCatalog
             return firstAuthorFullName.CompareTo(secondAuthorFullName);
         }
 
+        /// <summary>
+        /// Констрктор с параметрами.
+        /// </summary>
+        /// <param name="firstName">Имя</param>
+        /// <param name="lastName">Фамилия</param>
+        /// <param name="middleName">Отчество</param>
         public Author(string firstName, string lastName, string middleName)
         {
             FirstName = firstName ?? string.Empty;

@@ -5,6 +5,9 @@ using System.IO;
 
 namespace BookCatalog
 {
+    /// <summary>
+    /// Интерфейс, содержащий функциональность для классов каталогов электронных книг.
+    /// </summary>
     public interface ICatalogable
     {
         public void ScanCatalog();

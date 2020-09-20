@@ -7,13 +7,23 @@ using BookCatalog;
 
 namespace BookCatalog.FB2Catalog
 {
+    /// <summary>
+    /// Каталог для управления коллекцией List<FB2Book>
+    /// </summary>
     public class FB2BookCatalog: BookCatalog, ICatalogable
     {
+        /// <summary>
+        /// Конструктор по-умолчанию
+        /// </summary>
         public FB2BookCatalog()
         {
             CatalogName = "FB2 CATALOG";
         }       
 
+        /// <summary>
+        /// Метод для сканирования текущего каталога на наличие файлов *.fb2, *.fb2.zip. 
+        /// Если файлы найдены, создает коллекцию List<EBook> и добавляет в поле Catalog.
+        /// </summary>
         public void ScanCatalog()
         {
             if (CatalogCount > 0)
@@ -40,6 +50,9 @@ namespace BookCatalog.FB2Catalog
             Console.WriteLine("Scanning have ended");
         }  
 
+        /// <summary>
+        /// Метод для вывода на консоль найденных файлов fb2
+        /// </summary>
         public void ShowCatalog()
         {
             Console.WriteLine();
@@ -51,6 +64,9 @@ namespace BookCatalog.FB2Catalog
             Console.WriteLine("----------------------------------------------------");
         }
 
+        /// <summary>
+        /// Метод сортировки по возрастанию.
+        /// </summary>
         public void SortASC()
         {
             SortCatalog();
