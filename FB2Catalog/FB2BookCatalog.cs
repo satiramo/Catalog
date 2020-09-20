@@ -33,8 +33,9 @@ namespace BookCatalog.FB2Catalog
             //получаем отфильтрованный список полных путей к *.fb2 файлам
             List<string> zipPaths = EBook.GetBookPathsByExtension(Directory.GetCurrentDirectory(), zippedFormats).ToList();
             //создаем список книг на основе списка путей к файлам
-            List<EBook> zippedBooks = GetZippedBookList(paths).ToList(); ;
-            ConcatCatalog(books);
+            List<EBook> zippedBooks = GetZippedBookList(zipPaths).ToList(); ;
+            ConcatCatalog(zippedBooks);
+            Console.WriteLine("Scanning have ended");
         }
 
         public IEnumerable<EBook> GetBookList(IEnumerable<string> paths)
@@ -53,8 +54,9 @@ namespace BookCatalog.FB2Catalog
             List<EBook> result = new List<EBook>();
             foreach (var path in paths)
             {
-                //var book = FB2Book.CreateBook(path);
-                //result.Add(book);
+                List<EBook> books = FB2Book.CreateBooksFromZip(path).ToList();
+                if (books.Count > 0)
+                    result = result.Concat(books).ToList();
             }
             return result;
         }

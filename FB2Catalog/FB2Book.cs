@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using System.IO.Compression;
 
 namespace BookCatalog.FB2Catalog
 {
@@ -50,13 +51,40 @@ namespace BookCatalog.FB2Catalog
                 Author author = new Author(authorFirstName, authorLastName, authorMiddleName);
                 return new FB2Book(author, bookName, new FileInfo(path));
             }
-            else if (path.EndsWith(FB2Book.Formats[1]))
-            {
-                var filenameMass = path.Split(@"\");
-                var filename = filenameMass[filenameMass.Length - 1] ?? "not found";
-                return new FB2Book(new Author("", "", ""), filename, new FileInfo(path));
-            }
             return null;           
+        }
+
+        public static IEnumerable<EBook> CreateBooksFromZip(string path)
+        {
+            List<EBook> result = new List<EBook>();
+            using (FileStream stream = new FileStream(path, FileMode.Open))
+            {
+                using (ZipArchive archive = new ZipArchive(stream))
+                {
+                    //фильтруем содержимое архива по расширению
+                    var books = from xe in archive.Entries
+                                where xe.FullName.EndsWith(FB2Book.Formats[0])
+                                select xe;
+
+                    foreach (var book in books)
+                    {
+                        XDocument xDoc = XDocument.Load(book.Open());
+                        XNamespace ns = "http://www.gribuser.ru/xml/fictionbook/2.0";
+
+                        var titleInfoElem = xDoc.Root.Element(ns + "description").Element(ns + "title-info");
+                        var authorElem = titleInfoElem.Element(ns + "author");
+
+                        var authorFirstName = (string)authorElem.Element(ns + "first-name");
+                        var authorLastName = (string)authorElem.Element(ns + "last-name");
+                        var authorMiddleName = (string)authorElem.Element(ns + "middle-name");
+                        var bookName = (string)titleInfoElem.Element(ns + "book-title");
+
+                        Author author = new Author(authorFirstName, authorLastName, authorMiddleName);
+                        result.Add(new FB2Book(author, bookName, new FileInfo(path)));                        
+                    }
+                }
+            }
+            return result;
         }
     }
 }
