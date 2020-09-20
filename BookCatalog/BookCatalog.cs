@@ -10,8 +10,11 @@ namespace BookCatalog
     public class BookCatalog        
     {
         private List<EBook> Catalog { get; set; }
+
         public string CatalogName { get; set; }
+
         public int CatalogCount { get { return Catalog.Count; } }
+
         public BookCatalog()
         {            
             Catalog = new List<EBook>();            
@@ -31,14 +34,15 @@ namespace BookCatalog
         {
             Catalog.Clear();
         }
-
+        
         public IEnumerable<EBook> GetBooks()
         {
             foreach (var book in Catalog)
                 yield return book;
+        }    
+        public void SortCatalog()
+        {
+            Catalog.Sort();
         }
-
-        
     }
-
 }

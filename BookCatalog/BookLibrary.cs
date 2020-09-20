@@ -3,20 +3,13 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace BookCatalog
-{
-    public enum SortOrder
-    {
-        ASC,
-        DESC
-    }
-    public class Library
+{    
+    public class BookLibrary
     {
         private List<ICatalogable> Catalogs { get; set; }
-        public Library()
-        {
-            //проверить есть ли сериализованный файл каталога
-            //если есть, десериализовать, восстановив предыдущее состояние
-            //если нет, то создаем новый
+
+        public BookLibrary()
+        {            
             Catalogs = new List<ICatalogable>(5);            
         }
 
@@ -37,11 +30,10 @@ namespace BookCatalog
                 catalog.ShowCatalog();
         }
 
-        public void Sort(SortOrder order)
+        public void Sort()
         {
             foreach (var catalog in Catalogs)
-                catalog.Sort(order);
-        }
-        
+                catalog.SortASC();
+        }        
     }
 }

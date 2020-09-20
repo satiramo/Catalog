@@ -5,38 +5,41 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.IO.Compression;
+using System.Diagnostics.CodeAnalysis;
 
 namespace BookCatalog
 {
-    public class EBook
+    public class EBook: IComparable<EBook>
     {
-        public virtual Author Author { get; private set; }
-        public virtual string BookName { get; private set; }
-        protected FileInfo File { get; private set; }
+        public Author Author { get; private set; }
 
+        public string BookName { get; private set; }
+
+        private FileInfo File { get; set; }
        
         public EBook(Author author, string bookName, FileInfo file)
         {
             Author = author;
             BookName = bookName;
             File = file;
-        }
-
-        public static IEnumerable<string> GetBookPathsByExtension(string path, string[] formats)
-        {
-            string[] formatsLower = formats.Select(x => x.ToLowerInvariant()).ToArray();
-            IEnumerable<string> result = new List<string>();
-            foreach (var format in formatsLower)
-            {
-                result = result.Concat(Directory.EnumerateFiles(path, "*.*", SearchOption.TopDirectoryOnly)
-                    .Where(s => s.EndsWith(format))); 
-            }
-            return result;
-        }
+        }        
 
         public override string ToString()
         {
-            return $"{Author} - {BookName}".Replace("  ", " "); //убираем лишние пробелы, когда middleName пустой
+            return $"{Author} - {BookName}";
+        }
+
+        public int CompareTo([AllowNull] EBook other)
+        {
+            string firstAuthorFullName = this.Author.ToString();
+            string firstBookName = this.BookName;
+            string secondAuthorFullName = other.Author.ToString();
+            string secondBookName = other.BookName;
+
+            if (this.Author.CompareTo(other.Author) != 0)
+                return this.Author.CompareTo(other.Author);
+            else
+                return this.BookName.CompareTo(other.BookName);           
         }
 
         public static bool operator >(EBook firstBook, EBook secondBook)
@@ -72,6 +75,5 @@ namespace BookCatalog
 
             return firstBook.Author != secondBook.Author || String.CompareOrdinal(book1Name, book2Name) != 0;
         }
-
     }
 }

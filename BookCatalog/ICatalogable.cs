@@ -9,10 +9,8 @@ namespace BookCatalog
     {
         public void ScanCatalog();
 
-        public void ShowCatalog();
+        public void ShowCatalog();        
 
-        public IEnumerable<EBook> GetBookList(IEnumerable<string> paths);
-
-        public void Sort(SortOrder order);
+        public void SortASC();
     }
 }

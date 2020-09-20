@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Linq;
+using BookCatalog;
 
 namespace BookCatalog.FB2Catalog
 {
@@ -14,52 +15,30 @@ namespace BookCatalog.FB2Catalog
         }       
 
         public void ScanCatalog()
-        {            
-            //если в каталоге есть данные, чистим каталог
+        {
             if (CatalogCount > 0)
-                ClearCatalog();        //нехорошо! нужно сделать поле приватным и чистить через метод, а не напрямую
-            
+                ClearCatalog();
+            #region Search fb2-files
             //Ищем неархивированные .fb2 файлы
             Console.WriteLine($"Scanning directory {Directory.GetCurrentDirectory()} for 'fb2' books...\n");
             var formats = FB2Book.Formats;
             //получаем отфильтрованный список полных путей к *.fb2 файлам
-            List<string> paths = EBook.GetBookPathsByExtension(Directory.GetCurrentDirectory(), formats).ToList();
+            List<string> paths = EBookHelper.GetBookPathsByExtension(Directory.GetCurrentDirectory(), formats).ToList();
             //создаем список книг на основе списка путей к файлам
-            List<EBook> books = GetBookList(paths).ToList(); ;
+            List<EBook> books = FB2Fabric.GetBookList(paths).ToList();
             ConcatCatalog(books);
-
+            #endregion
+            #region Search archived fb2-files
             //Ищем архивированные *.fb2.zip файлы
             var zippedFormats = FB2Book.ArchiveFormats;
             //получаем отфильтрованный список полных путей к *.fb2 файлам
-            List<string> zipPaths = EBook.GetBookPathsByExtension(Directory.GetCurrentDirectory(), zippedFormats).ToList();
+            List<string> zipPaths = EBookHelper.GetBookPathsByExtension(Directory.GetCurrentDirectory(), zippedFormats).ToList();
             //создаем список книг на основе списка путей к файлам
-            List<EBook> zippedBooks = GetZippedBookList(zipPaths).ToList(); ;
+            List<EBook> zippedBooks = FB2Fabric.GetZippedBookList(zipPaths).ToList(); ;
             ConcatCatalog(zippedBooks);
+            #endregion
             Console.WriteLine("Scanning have ended");
-        }
-
-        public IEnumerable<EBook> GetBookList(IEnumerable<string> paths)
-        {
-            List<EBook> result = new List<EBook>();
-            foreach(var path in paths)
-            {
-                var book = FB2Book.CreateBook(path);
-                result.Add(book);
-            }
-            return result;
-        }
-
-        public IEnumerable<EBook> GetZippedBookList(IEnumerable<string> paths)
-        {
-            List<EBook> result = new List<EBook>();
-            foreach (var path in paths)
-            {
-                List<EBook> books = FB2Book.CreateBooksFromZip(path).ToList();
-                if (books.Count > 0)
-                    result = result.Concat(books).ToList();
-            }
-            return result;
-        }
+        }  
 
         public void ShowCatalog()
         {
@@ -72,9 +51,9 @@ namespace BookCatalog.FB2Catalog
             Console.WriteLine("----------------------------------------------------");
         }
 
-        public void Sort(SortOrder order)
+        public void SortASC()
         {
-            throw new NotImplementedException();
+            SortCatalog();
         }
     }
 }

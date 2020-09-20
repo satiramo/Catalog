@@ -16,7 +16,7 @@ namespace BookCatalog.FB2Catalog
         {
             get
             {
-                return new[] { ".fb2" };        //лучше конкретные форматы убрать в конфиг-файл
+                return new[] { ".fb2" };        //TODO: конкретные форматы убрать в конфиг-файл
             }
         }
 
@@ -24,7 +24,7 @@ namespace BookCatalog.FB2Catalog
         {
             get
             {
-                return new[] { ".fb2.zip" };     //лучше конкретные форматы убрать в конфиг-файл
+                return new[] { ".fb2.zip" };     //TODO: конкретные форматы убрать в конфиг-файл
             }
         }
         
@@ -34,22 +34,24 @@ namespace BookCatalog.FB2Catalog
 
         public static FB2Book CreateBook(string path)
         {
-
-            if (path.EndsWith(FB2Book.Formats[0]))
+            foreach (var format in FB2Book.Formats)
             {
-                XDocument xDoc = XDocument.Load(path);
-                XNamespace ns = "http://www.gribuser.ru/xml/fictionbook/2.0";
+                if (path.EndsWith(format))
+                {
+                    XDocument xDoc = XDocument.Load(path);
+                    XNamespace ns = "http://www.gribuser.ru/xml/fictionbook/2.0";
 
-                var titleInfoElem = xDoc.Root.Element(ns + "description").Element(ns + "title-info");
-                var authorElem = titleInfoElem.Element(ns + "author");
+                    var titleInfoElem = xDoc.Root.Element(ns + "description").Element(ns + "title-info");
+                    var authorElem = titleInfoElem.Element(ns + "author");
 
-                var authorFirstName = (string)authorElem.Element(ns + "first-name");
-                var authorLastName = (string)authorElem.Element(ns + "last-name");
-                var authorMiddleName = (string)authorElem.Element(ns + "middle-name");
-                var bookName = (string)titleInfoElem.Element(ns + "book-title");
+                    var authorFirstName = (string)authorElem.Element(ns + "first-name");
+                    var authorLastName = (string)authorElem.Element(ns + "last-name");
+                    var authorMiddleName = (string)authorElem.Element(ns + "middle-name");
+                    var bookName = (string)titleInfoElem.Element(ns + "book-title");
 
-                Author author = new Author(authorFirstName, authorLastName, authorMiddleName);
-                return new FB2Book(author, bookName, new FileInfo(path));
+                    Author author = new Author(authorFirstName, authorLastName, authorMiddleName);
+                    return new FB2Book(author, bookName, new FileInfo(path));
+                }
             }
             return null;           
         }
@@ -61,26 +63,29 @@ namespace BookCatalog.FB2Catalog
             {
                 using (ZipArchive archive = new ZipArchive(stream))
                 {
-                    //фильтруем содержимое архива по расширению
-                    var books = from xe in archive.Entries
-                                where xe.FullName.EndsWith(FB2Book.Formats[0])
-                                select xe;
-
-                    foreach (var book in books)
+                    foreach (var format in FB2Book.Formats)
                     {
-                        XDocument xDoc = XDocument.Load(book.Open());
-                        XNamespace ns = "http://www.gribuser.ru/xml/fictionbook/2.0";
+                        //фильтруем содержимое архива по расширениям
+                        var books = from ae in archive.Entries
+                                    where ae.FullName.EndsWith(format)
+                                    select ae;
 
-                        var titleInfoElem = xDoc.Root.Element(ns + "description").Element(ns + "title-info");
-                        var authorElem = titleInfoElem.Element(ns + "author");
+                        foreach (var book in books)
+                        {
+                            XDocument xDoc = XDocument.Load(book.Open());
+                            XNamespace ns = "http://www.gribuser.ru/xml/fictionbook/2.0";
 
-                        var authorFirstName = (string)authorElem.Element(ns + "first-name");
-                        var authorLastName = (string)authorElem.Element(ns + "last-name");
-                        var authorMiddleName = (string)authorElem.Element(ns + "middle-name");
-                        var bookName = (string)titleInfoElem.Element(ns + "book-title");
+                            var titleInfoElem = xDoc.Root.Element(ns + "description").Element(ns + "title-info");
+                            var authorElem = titleInfoElem.Element(ns + "author");
 
-                        Author author = new Author(authorFirstName, authorLastName, authorMiddleName);
-                        result.Add(new FB2Book(author, bookName, new FileInfo(path)));                        
+                            var authorFirstName = (string)authorElem.Element(ns + "first-name");
+                            var authorLastName = (string)authorElem.Element(ns + "last-name");
+                            var authorMiddleName = (string)authorElem.Element(ns + "middle-name");
+                            var bookName = (string)titleInfoElem.Element(ns + "book-title");
+
+                            Author author = new Author(authorFirstName, authorLastName, authorMiddleName);
+                            result.Add(new FB2Book(author, bookName, new FileInfo(path)));
+                        }
                     }
                 }
             }
