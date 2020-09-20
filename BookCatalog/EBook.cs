@@ -75,5 +75,10 @@ namespace BookCatalog
 
             return firstBook.Author != secondBook.Author || String.CompareOrdinal(book1Name, book2Name) != 0;
         }
+
+        public override int GetHashCode()
+        {
+            return $"{Author} - {BookName}".ToString().GetHashCode();
+        }
     }
 }

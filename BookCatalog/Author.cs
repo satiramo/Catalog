@@ -62,5 +62,10 @@ namespace BookCatalog
             string secondAuthorFullName = secondAuthor.ToString();
             return string.CompareOrdinal(firstAuthorFullName, secondAuthorFullName) != 0;
         }
+
+        public override int GetHashCode()
+        {
+            return this.ToString().GetHashCode();
+        }
     }
 }
